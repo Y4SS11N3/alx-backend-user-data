@@ -13,15 +13,16 @@ PII_FIELDS = ("name", "email", "phone", "ssn", "password")
 def filter_datum(fields: List[str], redaction: str,
                  message: str, separator: str) -> str:
     """
-    Returns the log message obfuscated.
+    Obfuscates specified fields in the log message.
+
     Args:
-        fields: a list of strings representing all fields to obfuscate
-        redaction: a string representing by what the field will be obfuscated
-        message: a string representing the log line
-        separator: a string representing by which character is separating all
-                   fields in the log line
+        fields (List[str]): List of strings representing fields to obfuscate.
+        redaction (str): String to replace the field values with.
+        message (str): Log line to obfuscate.
+        separator (str): Character separating fields in the log line.
+
     Returns:
-        str: The obfuscated log message
+        str: The obfuscated log message.
     """
     pattern = '({})=.*?{}'.format(
         '|'.join(map(re.escape, fields)),
@@ -31,17 +32,32 @@ def filter_datum(fields: List[str], redaction: str,
 
 
 class RedactingFormatter(logging.Formatter):
-    """ Redacting Formatter class """
+    """Redacting Formatter class for log obfuscation."""
 
     REDACTION = "***"
     FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)-15s: %(message)s"
     SEPARATOR = ";"
 
     def __init__(self, fields: List[str]):
+        """
+        Initialize the RedactingFormatter.
+
+        Args:
+            fields (List[str]): List of fields to redact in log messages.
+        """
         super(RedactingFormatter, self).__init__(self.FORMAT)
         self.fields = fields
 
     def format(self, record: logging.LogRecord) -> str:
+        """
+        Format the specified log record as text.
+
+        Args:
+            record (logging.LogRecord): The log record to format.
+
+        Returns:
+            str: The formatted and redacted log message.
+        """
         message = super().format(record)
         return filter_datum(self.fields, self.REDACTION,
                             message, self.SEPARATOR)
@@ -49,9 +65,10 @@ class RedactingFormatter(logging.Formatter):
 
 def get_logger() -> logging.Logger:
     """
-    Returns a logging.Logger object named "user_data".
+    Create and configure a logger for user data.
+
     Returns:
-        logging.Logger: A logger object
+        logging.Logger: A configured logger object.
     """
     logger = logging.getLogger("user_data")
     logger.setLevel(logging.INFO)
@@ -64,9 +81,11 @@ def get_logger() -> logging.Logger:
 
 def get_db() -> mysql.connector.connection.MySQLConnection:
     """
-    Returns a connector to the database.
+    Create a connection to the database.
+
     Returns:
-        mysql.connector.connection.MySQLConnection: A database connector
+        mysql.connector.connection.MySQLConnection: A database connection
+        object.
     """
     username = os.environ.get("PERSONAL_DATA_DB_USERNAME", "root")
     password = os.environ.get("PERSONAL_DATA_DB_PASSWORD", "")
@@ -82,7 +101,7 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
 
 def main() -> None:
     """
-    Retrieve all rows in the users table and display each row under a
+    Retrieve all rows from the users table and display each row in a
     filtered format.
     """
     db = get_db()

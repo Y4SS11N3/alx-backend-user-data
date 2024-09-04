@@ -5,7 +5,6 @@ from api.v1.views import app_views
 from flask import abort, jsonify, request
 from models.user import User
 
-
 @app_views.route('/users', methods=['GET'], strict_slashes=False)
 def view_all_users() -> str:
     """ GET /api/v1/users
@@ -14,7 +13,6 @@ def view_all_users() -> str:
     """
     all_users = [user.to_json() for user in User.all()]
     return jsonify(all_users)
-
 
 @app_views.route('/users/<user_id>', methods=['GET'], strict_slashes=False)
 def view_one_user(user_id: str = None) -> str:
@@ -36,7 +34,6 @@ def view_one_user(user_id: str = None) -> str:
         abort(404)
     return jsonify(user.to_json())
 
-
 @app_views.route('/users/<user_id>', methods=['DELETE'], strict_slashes=False)
 def delete_user(user_id: str = None) -> str:
     """ DELETE /api/v1/users/:id
@@ -53,7 +50,6 @@ def delete_user(user_id: str = None) -> str:
         abort(404)
     user.remove()
     return jsonify({}), 200
-
 
 @app_views.route('/users', methods=['POST'], strict_slashes=False)
 def create_user() -> str:
@@ -92,7 +88,6 @@ def create_user() -> str:
             error_msg = "Can't create User: {}".format(e)
     return jsonify({'error': error_msg}), 400
 
-
 @app_views.route('/users/<user_id>', methods=['PUT'], strict_slashes=False)
 def update_user(user_id: str = None) -> str:
     """ PUT /api/v1/users/:id
@@ -124,15 +119,3 @@ def update_user(user_id: str = None) -> str:
         user.last_name = rj.get('last_name')
     user.save()
     return jsonify(user.to_json()), 200
-
-
-@app_views.route('/users/me', methods=['GET'], strict_slashes=False)
-def get_current_user() -> str:
-    """ GET /api/v1/users/me
-    Return:
-      - User object JSON represented
-      - 404 if no User is logged in
-    """
-    if request.current_user is None:
-        abort(404)
-    return jsonify(request.current_user.to_json())
